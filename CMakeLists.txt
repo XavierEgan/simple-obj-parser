@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.18)
 project(
     ObjectParser
     VERSION 3.0.0
-    LANGUAGES CXX CUDA
+    LANGUAGES CXX C
 )
 
 # get sources
