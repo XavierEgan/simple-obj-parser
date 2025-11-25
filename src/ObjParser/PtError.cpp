@@ -47,4 +47,4 @@ std::ostream& pt::operator<<(std::ostream& oss, const pt::PtErrorType& error) no
 std::ostream& pt::operator<<(std::ostream& oss, const pt::PtError& error) noexcept {
 	oss << "PtError: " << error.errorType << " - Message: " << error.message << std::endl;
 	return oss;
-}
+} 

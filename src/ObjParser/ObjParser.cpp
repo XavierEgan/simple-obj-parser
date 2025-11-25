@@ -64,7 +64,7 @@ namespace ObjParserHelpers {
 		return pt::PtErrorType::OK;
 	}
 	
-	static enum FaceElementType {
+	enum FaceElementType {
 		notSet,
 		v,
 		vvt,
