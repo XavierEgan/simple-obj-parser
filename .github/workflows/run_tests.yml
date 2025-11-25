@@ -1,0 +1,16 @@
+name: Run Tests
+
+on: 
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sudo apt update && sudo apt install -y ninja-build
+      - run: cmake -S . -B ObjParserTests -G Ninja
+      - run: cmake --build ObjParserTests
+      - run: ctest --test-dir ObjParserTests --output-on-failure
