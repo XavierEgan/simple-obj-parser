@@ -35,7 +35,7 @@ public:
 TEST_P(MtlParseTestVecFixture, MtlParses) {
 	const MtlParseCaseVec& testCase = GetParam();
 
-	error = objParser::MtlParser::parseStream(testStream, materials);
+	error = objParser::parseMtlStream(testStream, materials);
 
 	if (materials.size() != 0) {
 		EXPECT_TRUE(TestHelpers::check_vec3_close_vec3(testCase.expectedKa, materials.back().ambientColor));

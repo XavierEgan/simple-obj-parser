@@ -182,7 +182,7 @@ namespace MtlParserHelpers {
 	}
 }
 
-objParser::Error objParser::MtlParser::parseFile(std::string fileName, std::vector<objParser::Material>& materials) {
+objParser::Error objParser::parseMtlFile(std::string fileName, std::vector<objParser::Material>& materials) {
 	std::ifstream inFS(fileName);
 
 	if (!inFS.is_open() || !inFS.good()) {
@@ -191,12 +191,12 @@ objParser::Error objParser::MtlParser::parseFile(std::string fileName, std::vect
 		return objParser::Error(objParser::ErrorType::FileFormatError, errorStream.str());
 	}
 
-	objParser::Error error = objParser::MtlParser::parseStream(inFS, materials);
+	objParser::Error error = objParser::parseMtlStream(inFS, materials);
 
 	return error;
 }
 
-objParser::Error objParser::MtlParser::parseStream(std::istream& stream, std::vector<objParser::Material>& materials) {
+objParser::Error objParser::parseMtlStream(std::istream& stream, std::vector<objParser::Material>& materials) {
 	std::string line;
 	std::getline(stream, line);
 

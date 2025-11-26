@@ -57,7 +57,7 @@ public:
 TEST_P(FaceParseTestFixture, ParsesFace) {
 	const FaceParseCase& testCase = GetParam();
 
-	error = objParser::ObjParser::parseStream(testStream, meshs, materials);
+	error = objParser::parseObjStream(testStream, meshs, materials);
 
 	if (testCase.expectedError != objParser::ErrorType::OK) {
 		EXPECT_EQ(error, testCase.expectedError);

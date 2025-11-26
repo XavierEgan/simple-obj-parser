@@ -204,7 +204,7 @@ namespace ObjParserHelpers {
 	}
 }
 
-objParser::Error objParser::ObjParser::parseFile(std::string fileName, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
+objParser::Error objParser::parseObjFile(std::string fileName, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
 	std::ifstream inFS(fileName);
 
 	if (!inFS.is_open() || !inFS.good()) {
@@ -213,12 +213,12 @@ objParser::Error objParser::ObjParser::parseFile(std::string fileName, std::vect
 		return objParser::Error(objParser::ErrorType::FileFormatError, errorStream.str());
 	}
 
-	objParser::Error error = parseStream(inFS, meshs, materials);
+	objParser::Error error = parseObjStream(inFS, meshs, materials);
 
 	return error;
 }
 
-objParser::Error objParser::ObjParser::parseStream(std::istream& stream, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
+objParser::Error objParser::parseObjStream(std::istream& stream, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
 	std::string line;
 	getline(stream, line);
 

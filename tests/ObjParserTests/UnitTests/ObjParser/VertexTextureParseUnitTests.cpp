@@ -39,7 +39,7 @@ public:
 TEST_P(VertexTextureParseTestFixture, ParsesVertex) {
 	const VertexTextureParseCase& testCase = GetParam();
 
-	error = objParser::ObjParser::parseStream(testStream, meshs, materials);
+	error = objParser::parseObjStream(testStream, meshs, materials);
 
 	if (testCase.expectedError != objParser::ErrorType::OK) {
 		ASSERT_NE(error, objParser::ErrorType::OK);

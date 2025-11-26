@@ -40,7 +40,7 @@ public:
 TEST_P(VertexNormalParseTestFixture, ParsesVertex) {
 	const VertexNormalParseCase& testCase = GetParam();
 
-	error = objParser::ObjParser::parseStream(testStream, meshs, materials);
+	error = objParser::parseObjStream(testStream, meshs, materials);
 
 	if (!testCase.shouldBeOk) {
 		ASSERT_NE(error, objParser::ErrorType::OK);
