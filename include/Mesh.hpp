@@ -14,8 +14,5 @@ namespace pt {
 		std::string name;
 
 		Mesh(std::string name);
-
-		bool operator==(const Mesh& other) const;
-		bool operator!=(const Mesh& other) const;
 	};
 }
