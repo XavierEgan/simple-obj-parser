@@ -5,5 +5,5 @@
 
 namespace objParser {
 	objParser::Error parseMtlFile(std::string fileName, std::vector<objParser::Material>& materials);
-	objParser::Error parseMtlStream(std::istream& stream, std::vector<objParser::Material>& materials);
+	objParser::Error parseMtlStream(std::istream& stream, const std::string& fileName, std::vector<objParser::Material>& materials);
 }

@@ -35,7 +35,7 @@ public:
 TEST_P(MtlParseTestFloatFixture, MtlParses) {
 	const MtlParseCaseFloat& testCase = GetParam();
 
-	error = objParser::parseMtlStream(testStream, materials);
+	error = objParser::parseMtlStream(testStream, "", materials);
 
 	// were not checking material creation, so its fine
 	if (materials.size() != 0) {

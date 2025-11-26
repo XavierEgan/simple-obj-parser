@@ -1,4 +1,5 @@
 #include "ObjParser.hpp"
+#include "MtlParser.hpp"
 #include <cctype>
 #include <filesystem>
 
@@ -199,7 +200,14 @@ namespace ObjParserHelpers {
 		return objParser::ErrorType::OK;
 	}
 
-	static inline objParser::Error linkMtlFile(std::string mtlFileName, std::vector<objParser::Material>& materials) {
+	static inline objParser::Error linkMtlFile(const std::string& mtlFileName, const std::string& objFileName, std::vector<objParser::Material>& materials) {
+		std::filesystem::path objFileDirectory(mtlFileName);
+		objFileDirectory = objFileDirectory.parent_path();
+
+		std::filesystem::path mtlFilePath = objFileDirectory / mtlFileName;
+
+		objParser::parseMtlFile(mtlFilePath.string(), materials);
+
 		return objParser::ErrorType::OK;
 	}
 }
@@ -213,12 +221,12 @@ objParser::Error objParser::parseObjFile(std::string fileName, std::vector<objPa
 		return objParser::Error(objParser::ErrorType::FileFormatError, errorStream.str());
 	}
 
-	objParser::Error error = parseObjStream(inFS, meshs, materials);
+	objParser::Error error = parseObjStream(inFS, fileName, meshs, materials);
 
 	return error;
 }
 
-objParser::Error objParser::parseObjStream(std::istream& stream, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
+objParser::Error objParser::parseObjStream(std::istream& stream, const std::string& objFileName, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
 	std::string line;
 	getline(stream, line);
 
@@ -302,7 +310,7 @@ objParser::Error objParser::parseObjStream(std::istream& stream, std::vector<obj
 		} else if (elementType == "mtllib") {
 			std::string fileName;
 			lineStream >> fileName;
-			objParser::Error error = ObjParserHelpers::linkMtlFile(fileName, materials);
+			objParser::Error error = ObjParserHelpers::linkMtlFile(fileName, objFileName, materials);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;

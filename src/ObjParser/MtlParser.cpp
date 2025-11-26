@@ -191,12 +191,12 @@ objParser::Error objParser::parseMtlFile(std::string fileName, std::vector<objPa
 		return objParser::Error(objParser::ErrorType::FileFormatError, errorStream.str());
 	}
 
-	objParser::Error error = objParser::parseMtlStream(inFS, materials);
+	objParser::Error error = objParser::parseMtlStream(inFS, fileName, materials);
 
 	return error;
 }
 
-objParser::Error objParser::parseMtlStream(std::istream& stream, std::vector<objParser::Material>& materials) {
+objParser::Error objParser::parseMtlStream(std::istream& stream, const std::string& fileName, std::vector<objParser::Material>& materials) {
 	std::string line;
 	std::getline(stream, line);
 
