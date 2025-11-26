@@ -1,4 +1,4 @@
-#include "Error.hpp"
+#include "ObjParserError.hpp"
 
 /*
  * The error works like this:
