@@ -11,7 +11,7 @@ struct VertexTextureParseCase {
 	std::string objFileContents;
 	bool makeDummyMesh;
 	glm::vec3 expectedValue = glm::vec3(0.0f, 0.0f, 0.0f);
-	pt::PtErrorType expectedError = pt::PtErrorType::OK;
+	objParser::ErrorType expectedError = objParser::ErrorType::OK;
 
 	friend std::ostream& operator<<(std::ostream& os, const VertexTextureParseCase& pc) {
 		os << "VertexTextureParseCase struct" << std::endl;
@@ -22,16 +22,16 @@ struct VertexTextureParseCase {
 class VertexTextureParseTestFixture : public ::testing::TestWithParam<VertexTextureParseCase> {
 protected:
 	std::istringstream testStream;
-	std::vector<pt::Mesh> meshs;
-	std::vector<pt::Material> materials; // this is empty coz were not testing materials
-	pt::PtError error;
+	std::vector<objParser::Mesh> meshs;
+	std::vector<objParser::Material> materials; // this is empty coz were not testing materials
+	objParser::PtError error;
 public:
 	VertexTextureParseTestFixture() {
 		const VertexTextureParseCase& testCase = GetParam();
 		testStream = std::istringstream(testCase.objFileContents);
 
 		if (testCase.makeDummyMesh) {
-			meshs.push_back(pt::Mesh("t"));
+			meshs.push_back(objParser::Mesh("t"));
 		}
 	}
 };
@@ -39,10 +39,10 @@ public:
 TEST_P(VertexTextureParseTestFixture, ParsesVertex) {
 	const VertexTextureParseCase& testCase = GetParam();
 
-	error = pt::ObjParser::parseStream(testStream, meshs, materials);
+	error = objParser::ObjParser::parseStream(testStream, meshs, materials);
 
-	if (testCase.expectedError != pt::PtErrorType::OK) {
-		ASSERT_NE(error, pt::PtErrorType::OK);
+	if (testCase.expectedError != objParser::ErrorType::OK) {
+		ASSERT_NE(error, objParser::ErrorType::OK);
 		EXPECT_EQ(error, testCase.expectedError);
 
 		if (meshs.size() != 0) {
@@ -53,7 +53,7 @@ TEST_P(VertexTextureParseTestFixture, ParsesVertex) {
 		return;
 	}
 
-	ASSERT_EQ(error, pt::PtErrorType::OK);
+	ASSERT_EQ(error, objParser::ErrorType::OK);
 
 	ASSERT_NE(meshs.at(0).vertexTextureCoordinates.size(), 0);
 
@@ -77,6 +77,6 @@ INSTANTIATE_TEST_SUITE_P(
 		VertexTextureParseCase{ "vt 1.0 1.0",					true,		glm::vec3(1.0f, 1.0f, 0.0f) },		// ACCEPTS two values (optional defaults to 0)
 		VertexTextureParseCase{ "vt 1.0",						true,		glm::vec3(1.0f, 0.0f, 0.0f) },		// ACCEPTS one values (optional defaults to 0)
 
-		VertexTextureParseCase{ "vt",							true,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError }	// REJECTS no values
+		VertexTextureParseCase{ "vt",							true,	glm::vec3(0.0f, 0.0f, 0.0f), objParser::ErrorType::FileFormatError }	// REJECTS no values
 	)
 );

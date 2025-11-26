@@ -3,9 +3,9 @@
 
 #include "Material.hpp"
 
-namespace pt {
+namespace objParser {
 	namespace MtlParser {
-		pt::PtError parseFile(std::string fileName, std::vector<pt::Material>& materials);
-		pt::PtError parseStream(std::istream& stream, std::vector<pt::Material>& materials);
+		objParser::Error parseFile(std::string fileName, std::vector<objParser::Material>& materials);
+		objParser::Error parseStream(std::istream& stream, std::vector<objParser::Material>& materials);
 	};
 }

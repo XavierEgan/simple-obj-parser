@@ -1,7 +1,7 @@
 #include "Material.hpp"
 
-pt::Material::Material(const std::string& name) : name(name) {}
+objParser::Material(const std::string& name) : name(name) {}
 
-const std::string& pt::Material::getName() const {
+const std::string& objParser::Material::getName() const {
     return name;
 }
