@@ -20,7 +20,7 @@ class MtlParseTestVecFixture : public ::testing::TestWithParam<MtlParseCaseVec> 
 protected:
 	std::istringstream testStream;
 	std::vector<objParser::Material> materials;
-	objParser::PtError error;
+	objParser::Error error;
 public:
 	MtlParseTestVecFixture() {
 		const MtlParseCaseVec& testCase = GetParam();

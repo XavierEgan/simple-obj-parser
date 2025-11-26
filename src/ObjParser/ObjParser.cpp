@@ -4,15 +4,15 @@
 
 
 namespace ObjParserHelpers {
-	static objParser::PtError ensureObjExists(std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error ensureObjExists(std::vector<objParser::Mesh>& meshs) {
 		if (meshs.size() == 0) {
-			return objParser::PtError(objParser::ErrorType::FileFormatError, "Trying to read data before any objects have been defined");
+			return objParser::Error(objParser::ErrorType::FileFormatError, "Trying to read data before any objects have been defined");
 		}
 
 		return objParser::ErrorType::OK;
 	}
 
-	static objParser::PtError newObject(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newObject(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
 		std::string name;
 		lineStream >> name;
 		meshs.emplace_back(name);
@@ -21,11 +21,11 @@ namespace ObjParserHelpers {
 	}
 
 
-	static objParser::PtError newVertex(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newVertex(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
 		// we will ignore w
 		float x = 0, y = 0, z = 0, w = 1.0;
 		if (!(lineStream >> x >> y >> z)) {
-			return objParser::PtError(objParser::ErrorType::FileFormatError, "Reading in a vertex failed");
+			return objParser::Error(objParser::ErrorType::FileFormatError, "Reading in a vertex failed");
 		}
 		// read in w, but its not an error if its not there
 		lineStream >> w;
@@ -35,10 +35,10 @@ namespace ObjParserHelpers {
 		return objParser::ErrorType::OK;
 	}
 
-	static objParser::PtError newVertexNormal(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newVertexNormal(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
 		float x = 0, y = 0, z = 0;
 		if (!(lineStream >> x >> y >> z)) {
-			return objParser::PtError(objParser::ErrorType::FileFormatError, "Reading in a vertex normal failed");
+			return objParser::Error(objParser::ErrorType::FileFormatError, "Reading in a vertex normal failed");
 		}
 
 		// its not necessarily normalized, so normalize it to make sure
@@ -50,11 +50,11 @@ namespace ObjParserHelpers {
 		return objParser::ErrorType::OK;
 	}
 
-	static objParser::PtError newVertexTexture(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newVertexTexture(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
 		// last two are optional, but default to zero so this should be fine
 		float x = 0, y = 0, z = 0;
 		if (!(lineStream >> x)) {
-			return objParser::PtError(objParser::ErrorType::FileFormatError, "Reading in vertex texture (uv) coords failed");
+			return objParser::Error(objParser::ErrorType::FileFormatError, "Reading in vertex texture (uv) coords failed");
 		}
 
 		lineStream >> y >> z;
@@ -72,17 +72,17 @@ namespace ObjParserHelpers {
 		vvtvn
 	};
 
-	static objParser::PtError newFace(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newFace(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
 		// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
 		std::array<std::string, 3> faces;
 
 		if (!(lineStream >> faces[0] >> faces[1] >> faces[2])) {
-			return objParser::PtError(objParser::ErrorType::FileFormatError, "Must be exactly 3 verts");
+			return objParser::Error(objParser::ErrorType::FileFormatError, "Must be exactly 3 verts");
 		}
 		
 		std::string temp;
 		if (lineStream >> temp) {
-			return objParser::PtError(objParser::ErrorType::FileFormatError, "Face cant have more that 3 verts. Triangulate your mesh before exporting");
+			return objParser::Error(objParser::ErrorType::FileFormatError, "Face cant have more that 3 verts. Triangulate your mesh before exporting");
 		}
 
 		int typeInput = FaceElementType::notSet;
@@ -110,25 +110,25 @@ namespace ObjParserHelpers {
 			if (firstSlashIndex == std::string::npos) {
 				// v
 				if (!(faceStream >> v) || v == 0) {
-					return objParser::PtError(objParser::ErrorType::FileFormatError, "Error reading face, format: v");
+					return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, format: v");
 				}
 				thisType = FaceElementType::v;
 			} else  if (firstSlashIndex == secondSlashIndex) {
 				// v/vt
 				if (!(faceStream >> v >> vt) || v == 0 || vt == 0) {
-					return objParser::PtError(objParser::ErrorType::FileFormatError, "Error reading face, format: v/vt");
+					return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, format: v/vt");
 				}
 				thisType = FaceElementType::vvt;
 			} else if (firstSlashIndex == secondSlashIndex - 1) {
 				// v//vn
 				if (!(faceStream >> v >> vn) || v == 0 || vn == 0) {
-					return objParser::PtError(objParser::ErrorType::FileFormatError, "Error reading face, format: v//vn");
+					return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, format: v//vn");
 				}
 				thisType = FaceElementType::vvn;
 			} else {
 				// v/vt/vn
 				if (!(faceStream >> v >> vt >> vn) || v == 0 || vt == 0 || vn == 0) {
-					return objParser::PtError(objParser::ErrorType::FileFormatError, "Error reading face, format: v/vt/vn");
+					return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, format: v/vt/vn");
 				}
 				thisType = FaceElementType::vvtvn;
 			}
@@ -136,7 +136,7 @@ namespace ObjParserHelpers {
 			if (typeInput == FaceElementType::notSet) {
 				typeInput = thisType;
 			} else if (typeInput != thisType) {
-				return objParser::PtError(objParser::ErrorType::FileFormatError, "Error reading face, must be all the same type of input (for example, all v//vn)");
+				return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, must be all the same type of input (for example, all v//vn)");
 			}
 			
 			if (v != noIndex) {
@@ -149,7 +149,7 @@ namespace ObjParserHelpers {
 				if (v > (int)meshs.back().vertices.size() - 1) {
 					std::ostringstream oss;
 					oss << "Vertex '" << vt << "' out of range. Expected less than '" << meshs.back().vertexNormals.size();
-					return objParser::PtError(objParser::ErrorType::FileFormatError, oss.str());
+					return objParser::Error(objParser::ErrorType::FileFormatError, oss.str());
 				}
 
 				tempVertexIndexes.push_back(v);
@@ -165,7 +165,7 @@ namespace ObjParserHelpers {
 				if (vt > (int)meshs.back().vertices.size() - 1) {
 					std::ostringstream oss;
 					oss << "Vertex Texture '" << vt << "' out of range. Expected less than '" << meshs.back().vertexNormals.size();
-					return objParser::PtError(objParser::ErrorType::FileFormatError, oss.str());
+					return objParser::Error(objParser::ErrorType::FileFormatError, oss.str());
 				}
 
 				tempVertexTextureCoordinatesIndexes.push_back(vt);
@@ -181,7 +181,7 @@ namespace ObjParserHelpers {
 				if (vn > (int)meshs.back().vertices.size() - 1) {
 					std::ostringstream oss;
 					oss << "Vertex Normal '" << vt << "' out of range. Expected less than '" << meshs.back().vertexNormals.size();
-					return objParser::PtError(objParser::ErrorType::FileFormatError, oss.str());
+					return objParser::Error(objParser::ErrorType::FileFormatError, oss.str());
 				}
 
 				tempVertexNormalsIndexes.push_back(vn);
@@ -195,30 +195,30 @@ namespace ObjParserHelpers {
 		return objParser::ErrorType::OK;
 	}
 
-	static inline objParser::PtError setMaterial(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
+	static inline objParser::Error setMaterial(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
 		return objParser::ErrorType::OK;
 	}
 
-	static inline objParser::PtError linkMtlFile(std::string mtlFileName, std::vector<objParser::Material>& materials) {
+	static inline objParser::Error linkMtlFile(std::string mtlFileName, std::vector<objParser::Material>& materials) {
 		return objParser::ErrorType::OK;
 	}
 }
 
-objParser::PtError objParser::ObjParser::parseFile(std::string fileName, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
+objParser::Error objParser::ObjParser::parseFile(std::string fileName, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
 	std::ifstream inFS(fileName);
 
 	if (!inFS.is_open() || !inFS.good()) {
 		std::ostringstream errorStream;
 		errorStream << "error reading material file '" << fileName << "'";
-		return objParser::PtError(objParser::ErrorType::FileFormatError, errorStream.str());
+		return objParser::Error(objParser::ErrorType::FileFormatError, errorStream.str());
 	}
 
-	objParser::PtError error = parseStream(inFS, meshs, materials);
+	objParser::Error error = parseStream(inFS, meshs, materials);
 
 	return error;
 }
 
-objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
+objParser::Error objParser::ObjParser::parseStream(std::istream& stream, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
 	std::string line;
 	getline(stream, line);
 
@@ -230,7 +230,7 @@ objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::
 
 		if (elementType == "o") {
 			// new object
-			objParser::PtError error = ObjParserHelpers::newObject(lineStream, meshs);
+			objParser::Error error = ObjParserHelpers::newObject(lineStream, meshs);
 			
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -238,7 +238,7 @@ objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::
 
 		} else if (elementType == "v") {
 			// vertex
-			objParser::PtError error = ObjParserHelpers::ensureObjExists(meshs);
+			objParser::Error error = ObjParserHelpers::ensureObjExists(meshs);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -252,7 +252,7 @@ objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::
 
 		} else if (elementType == "vn") {
 			// vertex normal
-			objParser::PtError error = ObjParserHelpers::ensureObjExists(meshs);
+			objParser::Error error = ObjParserHelpers::ensureObjExists(meshs);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -266,7 +266,7 @@ objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::
 
 		} else if (elementType == "vt") {
 			// vertex texture
-			objParser::PtError error = ObjParserHelpers::ensureObjExists(meshs);
+			objParser::Error error = ObjParserHelpers::ensureObjExists(meshs);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -280,7 +280,7 @@ objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::
 
 		} else if (elementType == "f") {
 			// face
-			objParser::PtError error = ObjParserHelpers::ensureObjExists(meshs);
+			objParser::Error error = ObjParserHelpers::ensureObjExists(meshs);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -293,7 +293,7 @@ objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::
 			}
 
 		} else if (elementType == "usemtl") {
-			objParser::PtError error = ObjParserHelpers::setMaterial(lineStream, meshs, materials);
+			objParser::Error error = ObjParserHelpers::setMaterial(lineStream, meshs, materials);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -302,7 +302,7 @@ objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::
 		} else if (elementType == "mtllib") {
 			std::string fileName;
 			lineStream >> fileName;
-			objParser::PtError error = ObjParserHelpers::linkMtlFile(fileName, materials);
+			objParser::Error error = ObjParserHelpers::linkMtlFile(fileName, materials);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -313,7 +313,7 @@ objParser::PtError objParser::ObjParser::parseStream(std::istream& stream, std::
 		} else {
 			std::ostringstream oss;
 			oss << "Unexpected Line start '" << elementType << "'" << std::endl;
-			return objParser::PtError(objParser::ErrorType::FileFormatError, oss.str());
+			return objParser::Error(objParser::ErrorType::FileFormatError, oss.str());
 		}
 
 		getline(stream, line);

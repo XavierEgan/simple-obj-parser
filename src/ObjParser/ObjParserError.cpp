@@ -1,31 +1,31 @@
-#include "PtError.hpp"
+#include "Error.hpp"
 
 /*
  * The error works like this:
- * PtError contains a ErrorType and a string describing the error
- * ErrorType has an implicit conversion to PtError with an empty string
+ * Error contains a ErrorType and a string describing the error
+ * ErrorType has an implicit conversion to Error with an empty string
  *     This means you can return ErrorType::{some error} and it will convert
- * PtError can be compared and only the ErrorType will be compared
+ * Error can be compared and only the ErrorType will be compared
  *     This means that ptError(OK, "all good") == ptError(OK, "") will return true
  */
 
-objParser::PtError::PtError() noexcept : errorType(objParser::ErrorType::OK) {}
-objParser::PtError::PtError(const objParser::ErrorType& errorType) noexcept : errorType(errorType) {}
-objParser::PtError::PtError(objParser::ErrorType errorType, std::string message) noexcept : errorType(errorType), message(message) {}
+objParser::Error::Error() noexcept : errorType(objParser::ErrorType::OK) {}
+objParser::Error::Error(const objParser::ErrorType& errorType) noexcept : errorType(errorType) {}
+objParser::Error::Error(objParser::ErrorType errorType, std::string message) noexcept : errorType(errorType), message(message) {}
 
-bool objParser::PtError::operator==(const objParser::PtError& other) const noexcept {
+bool objParser::Error::operator==(const objParser::Error& other) const noexcept {
 	return errorType == other.errorType;
 }
 
-bool objParser::PtError::operator!=(const objParser::PtError& other) const noexcept {
+bool objParser::Error::operator!=(const objParser::Error& other) const noexcept {
 	return errorType != other.errorType;
 }
 
-bool objParser::PtError::operator==(const objParser::ErrorType& other) const noexcept {
+bool objParser::Error::operator==(const objParser::ErrorType& other) const noexcept {
 	return errorType == other;
 }
 
-bool objParser::PtError::operator!=(const objParser::ErrorType& other) const noexcept {
+bool objParser::Error::operator!=(const objParser::ErrorType& other) const noexcept {
 	return errorType != other;
 }
 
@@ -44,7 +44,7 @@ std::ostream& objParser::operator<<(std::ostream& oss, const objParser::ErrorTyp
 	return oss;
 }
 
-std::ostream& objParser::operator<<(std::ostream& oss, const objParser::PtError& error) noexcept {
-	oss << "PtError: " << error.errorType << " - Message: " << error.message << std::endl;
+std::ostream& objParser::operator<<(std::ostream& oss, const objParser::Error& error) noexcept {
+	oss << "Error: " << error.errorType << " - Message: " << error.message << std::endl;
 	return oss;
 } 

@@ -25,7 +25,7 @@ protected:
 	std::istringstream testStream;
 	std::vector<objParser::Mesh> meshs;
 	std::vector<objParser::Material> materials; // this is empty coz were not testing materials
-	objParser::PtError error;
+	objParser::Error error;
 public:
 	VertexNormalParseTestFixture() {
 		const VertexNormalParseCase& testCase = GetParam();

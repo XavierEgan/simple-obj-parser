@@ -9,3 +9,4 @@ jobs:
       - uses: actions/checkout@v4
       - run: sudo apt install cloc
       - run: cloc src tests include/CommonInclude.hpp include/Material.hpp include/Mesh.hpp include/MtlParser.hpp include/ObjParser.hpp include/ObjParserError.hpp
+      - run: cloc .

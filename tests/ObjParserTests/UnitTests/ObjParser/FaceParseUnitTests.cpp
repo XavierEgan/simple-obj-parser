@@ -30,7 +30,7 @@ protected:
 	std::istringstream testStream;
 	std::vector<objParser::Mesh> meshs;
 	std::vector<objParser::Material> materials;
-	objParser::PtError error;
+	objParser::Error error;
 public:
 	FaceParseTestFixture() {
 		const FaceParseCase& testCase = GetParam();

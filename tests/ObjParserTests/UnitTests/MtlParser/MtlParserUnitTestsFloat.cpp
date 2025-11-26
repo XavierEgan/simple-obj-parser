@@ -20,7 +20,7 @@ class MtlParseTestFloatFixture : public ::testing::TestWithParam<MtlParseCaseFlo
 protected:
 	std::istringstream testStream;
 	std::vector<objParser::Material> materials;
-	objParser::PtError error;
+	objParser::Error error;
 public:
 	MtlParseTestFloatFixture() {
 		const MtlParseCaseFloat& testCase = GetParam();
