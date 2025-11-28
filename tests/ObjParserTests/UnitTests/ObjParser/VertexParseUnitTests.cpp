@@ -11,7 +11,7 @@ struct VertexParseCase {
 	std::string objFileContents;
 	bool makeDummyMesh;
 	glm::vec3 expectedValue = glm::vec3(0.0f, 0.0f, 0.0f);
-	pt::PtErrorType expectedError = pt::PtErrorType::OK;
+	objParser::ErrorType expectedError = objParser::ErrorType::OK;
 
 	friend std::ostream& operator<<(std::ostream& os, const VertexParseCase& pc) {
 		os << "VertexParseCase struct" << std::endl;
@@ -22,16 +22,16 @@ struct VertexParseCase {
 class VertexParseTestFixture : public ::testing::TestWithParam<VertexParseCase> {
 protected:
 	std::istringstream testStream;
-	std::vector<pt::Mesh> meshs;
-	std::vector<pt::Material> materials; // this is empty coz were not testing materials
-	pt::PtError error;
+	std::vector<objParser::Mesh> meshs;
+	std::vector<objParser::Material> materials; // this is empty coz were not testing materials
+	objParser::Error error;
 public:
 	VertexParseTestFixture() {
 		const VertexParseCase& testCase = GetParam();
 		testStream = std::istringstream(testCase.objFileContents);
 
 		if (testCase.makeDummyMesh) {
-			meshs.push_back(pt::Mesh("t"));
+			meshs.push_back(objParser::Mesh("t"));
 		}
 	}
 };
@@ -39,9 +39,9 @@ public:
 TEST_P(VertexParseTestFixture, ParsesVertex) {
 	const VertexParseCase& testCase = GetParam();
 
-	error = pt::ObjParser::parseStream(testStream, meshs, materials);
+	error = objParser::parseObjStream(testStream, "", meshs, materials);
 
-	if (testCase.expectedError != pt::PtErrorType::OK) {
+	if (testCase.expectedError != objParser::ErrorType::OK) {
 		EXPECT_EQ(error, testCase.expectedError);
 		
 		if (meshs.size() != 0) {
@@ -52,7 +52,7 @@ TEST_P(VertexParseTestFixture, ParsesVertex) {
 		return;
 	}
 	
-	ASSERT_EQ(error, pt::PtErrorType::OK);
+	ASSERT_EQ(error, objParser::ErrorType::OK);
 
 	ASSERT_NE(meshs.at(0).vertices.size(), 0);
 
@@ -75,7 +75,7 @@ INSTANTIATE_TEST_SUITE_P(
 		VertexParseCase{ "v 1.0 1.0 1.0 -.5",			true,		glm::vec3(-2.0f, -2.0f, -2.0f) },	// ACCEPTS w, which scales by 1/w
 		VertexParseCase{ "v 1.0 1.0 1.0 .5 1.0 1.0 1.0",true,		glm::vec3(2.0f, 2.0f, 2.0f) },		// ACCEPTS a bunch of numbers (some programs use them to specify rgb, so its still valid im just ignoring it)
 		
-		VertexParseCase{ "v a 1.0 1.0 .5",				true,		glm::vec3(), pt::PtErrorType::FileFormatError },	// REJECTS letter instead of number
-		VertexParseCase{ "v 1 1.0 b .5",				true,		glm::vec3(), pt::PtErrorType::FileFormatError }		// REJECTS letter instead of number
+		VertexParseCase{ "v a 1.0 1.0 .5",				true,		glm::vec3(), objParser::ErrorType::FileFormatError },	// REJECTS letter instead of number
+		VertexParseCase{ "v 1 1.0 b .5",				true,		glm::vec3(), objParser::ErrorType::FileFormatError }		// REJECTS letter instead of number
 	)
 );

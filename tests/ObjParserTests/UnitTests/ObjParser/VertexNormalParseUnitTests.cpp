@@ -12,7 +12,7 @@ struct VertexNormalParseCase {
 	bool makeDummyMesh;
 	bool shouldBeOk;
 	glm::vec3 expectedValue = glm::vec3(0.0f, 0.0f, 0.0f);
-	pt::PtErrorType expectedError = pt::PtErrorType::OK;
+	objParser::ErrorType expectedError = objParser::ErrorType::OK;
 
 	friend std::ostream& operator<<(std::ostream& os, const VertexNormalParseCase& pc) {
 		os << "VertexNormalParseCase struct" << std::endl;
@@ -23,16 +23,16 @@ struct VertexNormalParseCase {
 class VertexNormalParseTestFixture : public ::testing::TestWithParam<VertexNormalParseCase> {
 protected:
 	std::istringstream testStream;
-	std::vector<pt::Mesh> meshs;
-	std::vector<pt::Material> materials; // this is empty coz were not testing materials
-	pt::PtError error;
+	std::vector<objParser::Mesh> meshs;
+	std::vector<objParser::Material> materials; // this is empty coz were not testing materials
+	objParser::Error error;
 public:
 	VertexNormalParseTestFixture() {
 		const VertexNormalParseCase& testCase = GetParam();
 		testStream = std::istringstream(testCase.objFileContents);
 
 		if (testCase.makeDummyMesh) {
-			meshs.push_back(pt::Mesh("t"));
+			meshs.push_back(objParser::Mesh("t"));
 		}
 	}
 };
@@ -40,10 +40,10 @@ public:
 TEST_P(VertexNormalParseTestFixture, ParsesVertex) {
 	const VertexNormalParseCase& testCase = GetParam();
 
-	error = pt::ObjParser::parseStream(testStream, meshs, materials);
+	error = objParser::parseObjStream(testStream, "", meshs, materials);
 
 	if (!testCase.shouldBeOk) {
-		ASSERT_NE(error, pt::PtErrorType::OK);
+		ASSERT_NE(error, objParser::ErrorType::OK);
 		EXPECT_EQ(error, testCase.expectedError);
 
 		if (meshs.size() != 0) {
@@ -54,7 +54,7 @@ TEST_P(VertexNormalParseTestFixture, ParsesVertex) {
 		return;
 	}
 
-	ASSERT_EQ(error, pt::PtErrorType::OK);
+	ASSERT_EQ(error, objParser::ErrorType::OK);
 
 	ASSERT_NE(meshs.at(0).vertexNormals.size(), 0);
 
@@ -84,11 +84,11 @@ INSTANTIATE_TEST_SUITE_P(
 
 		VertexNormalParseCase{ "vn 1.0 1.0 1.0 # comment",		true, true,		normVec },		// ACCEPTS ignores comment
 
-		VertexNormalParseCase{ "vn",							true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS no values
-		VertexNormalParseCase{ "vn 1.0",						true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS one value
-		VertexNormalParseCase{ "vn 1.0 1.0",					true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS two values
-		VertexNormalParseCase{ "vn 1.0 1.0 1.0",				false,false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS when there is no object
-		VertexNormalParseCase{ "vn t",							true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError }		// REJECTS when there is a letter instead of number
+		VertexNormalParseCase{ "vn",							true, false,	glm::vec3(0.0f, 0.0f, 0.0f), objParser::ErrorType::FileFormatError },	// REJECTS no values
+		VertexNormalParseCase{ "vn 1.0",						true, false,	glm::vec3(0.0f, 0.0f, 0.0f), objParser::ErrorType::FileFormatError },	// REJECTS one value
+		VertexNormalParseCase{ "vn 1.0 1.0",					true, false,	glm::vec3(0.0f, 0.0f, 0.0f), objParser::ErrorType::FileFormatError },	// REJECTS two values
+		VertexNormalParseCase{ "vn 1.0 1.0 1.0",				false,false,	glm::vec3(0.0f, 0.0f, 0.0f), objParser::ErrorType::FileFormatError },	// REJECTS when there is no object
+		VertexNormalParseCase{ "vn t",							true, false,	glm::vec3(0.0f, 0.0f, 0.0f), objParser::ErrorType::FileFormatError }		// REJECTS when there is a letter instead of number
 	
 		
 	)

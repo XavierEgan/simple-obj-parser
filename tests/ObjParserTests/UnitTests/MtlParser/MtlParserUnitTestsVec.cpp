@@ -8,7 +8,7 @@
 struct MtlParseCaseVec {
 	std::string mtlFileContents;
 	bool makeDummyMaterial;
-	pt::PtErrorType expectedError = pt::PtErrorType::OK;
+	objParser::ErrorType expectedError = objParser::ErrorType::OK;
 	
 	glm::vec3 expectedKa = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 expectedKd = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -19,15 +19,15 @@ struct MtlParseCaseVec {
 class MtlParseTestVecFixture : public ::testing::TestWithParam<MtlParseCaseVec> {
 protected:
 	std::istringstream testStream;
-	std::vector<pt::Material> materials;
-	pt::PtError error;
+	std::vector<objParser::Material> materials;
+	objParser::Error error;
 public:
 	MtlParseTestVecFixture() {
 		const MtlParseCaseVec& testCase = GetParam();
 		testStream = std::istringstream(testCase.mtlFileContents);
 
 		if (testCase.makeDummyMaterial) {
-			materials.push_back(pt::Material("t"));
+			materials.push_back(objParser::Material("t"));
 		}
 	}
 };
@@ -35,7 +35,7 @@ public:
 TEST_P(MtlParseTestVecFixture, MtlParses) {
 	const MtlParseCaseVec& testCase = GetParam();
 
-	error = pt::MtlParser::parseStream(testStream, materials);
+	error = objParser::parseMtlStream(testStream, "", materials);
 
 	if (materials.size() != 0) {
 		EXPECT_TRUE(TestHelpers::check_vec3_close_vec3(testCase.expectedKa, materials.back().ambientColor));
@@ -54,53 +54,53 @@ INSTANTIATE_TEST_SUITE_P(
 	MtlParseTestVecFixture,
 	::testing::Values(
 		// make sure they fail if there is no material
-		MtlParseCaseVec{ "Ka 1.0 1.0 1.0", false, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Kd 1.0 1.0 1.0", false, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ks 1.0 1.0 1.0", false, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Tf 1.0 1.0 1.0", false, pt::PtErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ka 1.0 1.0 1.0", false, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Kd 1.0 1.0 1.0", false, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ks 1.0 1.0 1.0", false, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Tf 1.0 1.0 1.0", false, objParser::ErrorType::FileFormatError },
 
 		// Ka, ambient color
-		MtlParseCaseVec{ "Ka -0.1 0.0 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ka 0.0 -0.1 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ka 0.0 0.0 -0.1", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ka 1.1 0.0 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ka 0.0 1.1 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ka 0.0 0.0 1.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ka -0.1 0.0 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ka 0.0 -0.1 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ka 0.0 0.0 -0.1", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ka 1.1 0.0 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ka 0.0 1.1 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ka 0.0 0.0 1.1", true, objParser::ErrorType::FileFormatError },
 
-		MtlParseCaseVec{ "Ka 0.0 0.0 0.0", true, pt::PtErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f) },
-		MtlParseCaseVec{ "Ka 1.0 1.0 1.0", true, pt::PtErrorType::OK, glm::vec3(1.0f, 1.0f, 1.0f) },
+		MtlParseCaseVec{ "Ka 0.0 0.0 0.0", true, objParser::ErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f) },
+		MtlParseCaseVec{ "Ka 1.0 1.0 1.0", true, objParser::ErrorType::OK, glm::vec3(1.0f, 1.0f, 1.0f) },
 
 		// Kd, diffuse color
-		MtlParseCaseVec{ "Kd -0.1 0.0 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Kd 0.0 -0.1 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Kd 0.0 0.0 -0.1", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Kd 1.1 0.0 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Kd 0.0 1.1 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Kd 0.0 0.0 1.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseVec{ "Kd -0.1 0.0 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Kd 0.0 -0.1 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Kd 0.0 0.0 -0.1", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Kd 1.1 0.0 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Kd 0.0 1.1 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Kd 0.0 0.0 1.1", true, objParser::ErrorType::FileFormatError },
 
-		MtlParseCaseVec{ "Kd 0.0 0.0 0.0", true, pt::PtErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
-		MtlParseCaseVec{ "Kd 1.0 1.0 1.0", true, pt::PtErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
+		MtlParseCaseVec{ "Kd 0.0 0.0 0.0", true, objParser::ErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
+		MtlParseCaseVec{ "Kd 1.0 1.0 1.0", true, objParser::ErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
 
 		// Ks, specular color
-		MtlParseCaseVec{ "Ks -0.1 0.0 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ks 0.0 -0.1 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ks 0.0 0.0 -0.1", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ks 1.1 0.0 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ks 0.0 1.1 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Ks 0.0 0.0 1.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ks -0.1 0.0 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ks 0.0 -0.1 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ks 0.0 0.0 -0.1", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ks 1.1 0.0 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ks 0.0 1.1 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Ks 0.0 0.0 1.1", true, objParser::ErrorType::FileFormatError },
 
-		MtlParseCaseVec{ "Ks 0.0 0.0 0.0", true, pt::PtErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
-		MtlParseCaseVec{ "Ks 1.0 1.0 1.0", true, pt::PtErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
+		MtlParseCaseVec{ "Ks 0.0 0.0 0.0", true, objParser::ErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
+		MtlParseCaseVec{ "Ks 1.0 1.0 1.0", true, objParser::ErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
 
 		// Tf, Transmission Filter Color
-		MtlParseCaseVec{ "Tf -0.1 0.0 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Tf 0.0 -0.1 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Tf 0.0 0.0 -0.1", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Tf 1.1 0.0 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Tf 0.0 1.1 0.0", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseVec{ "Tf 0.0 0.0 1.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseVec{ "Tf -0.1 0.0 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Tf 0.0 -0.1 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Tf 0.0 0.0 -0.1", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Tf 1.1 0.0 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Tf 0.0 1.1 0.0", true, objParser::ErrorType::FileFormatError },
+		MtlParseCaseVec{ "Tf 0.0 0.0 1.1", true, objParser::ErrorType::FileFormatError },
 
-		MtlParseCaseVec{ "Tf 0.0 0.0 0.0", true, pt::PtErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
-		MtlParseCaseVec{ "Tf 1.0 1.0 1.0", true, pt::PtErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) }
+		MtlParseCaseVec{ "Tf 0.0 0.0 0.0", true, objParser::ErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
+		MtlParseCaseVec{ "Tf 1.0 1.0 1.0", true, objParser::ErrorType::OK, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) }
 	)
 );

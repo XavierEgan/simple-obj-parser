@@ -1,7 +1,7 @@
 #pragma once
 #include "CommonInclude.hpp"
 
-namespace pt {
+namespace objParser {
 	struct Mesh {
 		std::vector<glm::vec3> vertices;
 		std::vector<glm::vec3> vertexTextureCoordinates;

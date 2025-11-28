@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "PtError.hpp"
+#include "ObjParserError.hpp"
 
 #include "ext/glm/glm.hpp"
 
