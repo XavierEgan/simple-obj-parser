@@ -21,7 +21,6 @@ namespace ObjParserHelpers {
 		return objParser::ErrorType::OK;
 	}
 
-
 	static objParser::Error newVertex(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
 		// we will ignore w
 		float x = 0, y = 0, z = 0, w = 1.0;
@@ -197,10 +196,15 @@ namespace ObjParserHelpers {
 	}
 
 	static inline objParser::Error setMaterial(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs, std::vector<objParser::Material>& materials) {
+		
+		
 		return objParser::ErrorType::OK;
 	}
 
-	static inline objParser::Error linkMtlFile(const std::string& mtlFileName, const std::string& objFileName, std::vector<objParser::Material>& materials) {
+	static inline objParser::Error linkMtlFile(std::istringstream& lineStream, const std::string& objFileName, std::vector<objParser::Material>& materials) {
+		std::string mtlFileName;
+		lineStream >> mtlFileName;
+		
 		std::filesystem::path objFileDirectory(mtlFileName);
 		objFileDirectory = objFileDirectory.parent_path();
 
@@ -308,9 +312,7 @@ objParser::Error objParser::parseObjStream(std::istream& stream, const std::stri
 			}
 
 		} else if (elementType == "mtllib") {
-			std::string fileName;
-			lineStream >> fileName;
-			objParser::Error error = ObjParserHelpers::linkMtlFile(fileName, objFileName, materials);
+			objParser::Error error = ObjParserHelpers::linkMtlFile(lineStream, objFileName, materials);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
