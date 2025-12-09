@@ -1,0 +1,5 @@
+newmtl t1
+Ka 0.0 .3 1.0
+
+newmtl t2
+Ka 1.0 0.0 1.0

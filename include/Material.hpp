@@ -14,6 +14,5 @@ namespace objParser {
 
 
         Material(const std::string& name);
-        const std::string& getName() const;
     };
 }

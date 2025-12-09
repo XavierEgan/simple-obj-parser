@@ -37,6 +37,9 @@ std::ostream& objParser::operator<<(std::ostream& oss, const objParser::ErrorTyp
 	case(objParser::ErrorType::FileFormatError):
 		oss << "FileFormatError";
 		break;
+	case(objParser::ErrorType::FileNotFound):
+		oss << "FileNotFound";
+		break;
 	default:
 		break;
 	}
