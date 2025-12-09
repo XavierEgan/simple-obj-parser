@@ -6,7 +6,8 @@
 namespace objParser {
 	enum ErrorType {
 		OK,
-		FileFormatError
+		FileFormatError,
+		FileNotFound
 	};
 
 	std::ostream& operator<<(std::ostream& oss, const objParser::ErrorType& error) noexcept;
