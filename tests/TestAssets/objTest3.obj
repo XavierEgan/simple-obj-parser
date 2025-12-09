@@ -1,0 +1,7 @@
+mtllib mtlTest3_1.mtl
+o t
+v 0 0 0
+v 0 0 0
+v 0 0 0
+f 1 2 3
+usemtl t2

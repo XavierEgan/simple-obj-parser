@@ -188,7 +188,7 @@ objParser::Error objParser::parseMtlFile(std::filesystem::path fileName, std::ve
 	if (!inFS.is_open() || !inFS.good()) {
 		std::ostringstream errorStream;
 		errorStream << "error reading material file '" << fileName << "'";
-		return objParser::Error(objParser::ErrorType::FileFormatError, errorStream.str());
+		return objParser::Error(objParser::ErrorType::FileNotFound, errorStream.str());
 	}
 
 	objParser::Error error = objParser::parseMtlStream(inFS, fileName, materials);

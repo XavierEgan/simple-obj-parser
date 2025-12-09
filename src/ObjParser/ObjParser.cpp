@@ -201,22 +201,26 @@ namespace ObjParserHelpers {
 			return materialName == mat.name;
 		};
 		
-		auto material = std::ranges::find_if(materials, materialNameMatches);
-
-
 		
-		return objParser::ErrorType::OK;
+
+		if (auto matIterator = std::ranges::find_if(materials, materialNameMatches); matIterator != materials.end()) {
+			meshs.back().mtlIndex = matIterator - materials.begin();
+
+			return objParser::ErrorType::OK;
+		} else {
+			return objParser::Error(objParser::ErrorType::FileFormatError, "Material '" + materialName + "' not found");
+		}
 	}
 
-	static inline objParser::Error linkMtlFile(std::istringstream& lineStream, const std::filesystem::path& objFileName, std::vector<objParser::Material>& materials) {
+	static inline objParser::Error linkMtlFile(std::istringstream& lineStream, const std::filesystem::path& objFilePath, std::vector<objParser::Material>& materials) {
 		std::string mtlFileName;
 		lineStream >> mtlFileName;
 
-		std::filesystem::path mtlFilePath = objFileName / mtlFileName;
+		std::filesystem::path mtlFilePath = objFilePath / mtlFileName;
 
-		objParser::parseMtlFile(mtlFilePath, materials);
+		objParser::Error error = objParser::parseMtlFile(mtlFilePath, materials);
 
-		return objParser::ErrorType::OK;
+		return error;
 	}
 }
 

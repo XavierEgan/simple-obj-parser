@@ -10,7 +10,8 @@ namespace objParser {
 		std::vector<int> vertexIndexes;
 		std::vector<int> vertexTextureCoordinatesIndexes;
 		std::vector<int> vertexNormalsIndexes;
-
+		
+		size_t mtlIndex;
 		std::string name;
 
 		Mesh(std::string name);
