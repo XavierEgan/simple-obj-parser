@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+ 
 #include "ObjParserError.hpp"
 
 #include "ext/glm/glm.hpp"

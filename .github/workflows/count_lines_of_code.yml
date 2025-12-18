@@ -8,9 +8,18 @@ on:
 jobs:
   count-lines:
     runs-on: ubuntu-latest
-    if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
+
+      - id: last
+        run: echo "name=$(git log -1 --pretty=%an)" >> "$GITHUB_OUTPUT"
+
       - run: sudo apt install cloc
+        if: steps.last.outputs.name == 'github-actions[bot]'
+
       - run: cloc src tests include/CommonInclude.hpp include/Material.hpp include/Mesh.hpp include/MtlParser.hpp include/ObjParser.hpp include/ObjParserError.hpp
+        if: steps.last.outputs.name == 'github-actions[bot]'
+      
       - run: cloc .
+        if: steps.last.outputs.name == 'github-actions[bot]'
+      

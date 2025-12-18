@@ -6,30 +6,57 @@ on:
       - main
 
 jobs:
+
   build_ubuntu:
     runs-on: ubuntu-latest
-    if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
+
+      - id: last
+        run: echo "name=$(git log -1 --pretty=%an)" >> "$GITHUB_OUTPUT"
+
       - run: sudo apt update && sudo apt install -y ninja-build
+        if: steps.last.outputs.name == 'github-actions[bot]'
+
       - run: cmake -S . -B ObjParserTests -G Ninja
+        if: steps.last.outputs.name == 'github-actions[bot]'
+
       - run: cmake --build ObjParserTests
+        if: steps.last.outputs.name == 'github-actions[bot]'
+
       - run: ctest --test-dir ObjParserTests --output-on-failure
+        if: steps.last.outputs.name == 'github-actions[bot]'
   
   build_windows:
     runs-on: windows-latest
     if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
+
+      - id: last
+        run: echo "name=$(git log -1 --pretty=%an)" >> "$GITHUB_OUTPUT"
+
       - run: cmake -S . -B ObjParserTests -G "Visual Studio 17 2022" -A x64
+        if: steps.last.outputs.name == 'github-actions[bot]'
+
       - run: cmake --build ObjParserTests
+        if: steps.last.outputs.name == 'github-actions[bot]'
+
       - run: ctest --test-dir ObjParserTests --output-on-failure
+        if: steps.last.outputs.name == 'github-actions[bot]'
 
   build_mac:
     runs-on: macos-latest
     if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
+
+      - id: last
+        run: echo "name=$(git log -1 --pretty=%an)" >> "$GITHUB_OUTPUT"
+
       - run: cmake -S . -B ObjParserTests -G Ninja
+        if: steps.last.outputs.name == 'github-actions[bot]'
       - run: cmake --build ObjParserTests
+        if: steps.last.outputs.name == 'github-actions[bot]'
       - run: ctest --test-dir ObjParserTests --output-on-failure
+        if: steps.last.outputs.name == 'github-actions[bot]'
