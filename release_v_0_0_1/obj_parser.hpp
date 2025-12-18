@@ -834,7 +834,7 @@ objParser::Error objParser::parseMtlStream(std::istream& stream, const std::file
 }
 #include "Mesh.hpp"
 
-objParser::Mesh::Mesh(std::string name) : name(name) {} 
+objParser::Mesh::Mesh(std::string name) : name(name) {}
 #include "Material.hpp"
 
 objParser::Material::Material(const std::string& name) : name(name) {} 
