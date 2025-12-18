@@ -12,7 +12,7 @@ permissions:
 jobs:
   construct-import-lib:
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
+    if: ${{ github.head_ref.name != 'github-actions[bot]' }}
     steps:
       - uses: actions/checkout@v4
         with:
