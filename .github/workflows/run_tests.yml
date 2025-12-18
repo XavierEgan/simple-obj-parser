@@ -38,7 +38,7 @@ jobs:
 
       - id: last
         run: |
-        "name=$(git log -1 --pretty=%an)" >> $env:GITHUB_OUTPUT
+          "name=$(git log -1 --pretty=%an)" >> $env:GITHUB_OUTPUT
 
       - run: cmake -S . -B ObjParserTests -G "Visual Studio 17 2022" -A x64
         if: steps.last.outputs.name == 'github-actions[bot]'
