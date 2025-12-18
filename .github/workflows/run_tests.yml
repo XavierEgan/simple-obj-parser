@@ -8,6 +8,7 @@ on:
 jobs:
   build_ubuntu:
     runs-on: ubuntu-latest
+    if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt update && sudo apt install -y ninja-build
@@ -17,6 +18,7 @@ jobs:
   
   build_windows:
     runs-on: windows-latest
+    if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
       - run: cmake -S . -B ObjParserTests -G "Visual Studio 17 2022" -A x64
@@ -25,6 +27,7 @@ jobs:
 
   build_mac:
     runs-on: macos-latest
+    if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
       - run: cmake -S . -B ObjParserTests -G Ninja

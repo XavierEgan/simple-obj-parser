@@ -1,6 +1,9 @@
 name: count lines of code
 
-on: pull_request
+on: 
+  pull_request:
+    branches:
+      - main
 
 jobs:
   count-lines:
