@@ -2,7 +2,7 @@
 #include "CommonInclude.hpp"
 
 namespace objParser {
-    struct Material {
+    struct Material { 
         std::string name;
 		glm::vec3 ambientColor = glm::vec3(0.0f, 0.0f, 0.0f);		// Ka
 		glm::vec3 diffuseColor = glm::vec3(0.0f, 0.0f, 0.0f);		// Kd
