@@ -19,15 +19,23 @@ jobs:
           ref: ${{ github.head_ref }}
           persist-credentials: false
           fetch-depth: 0
+      
+      - id: last
+        run: echo "name=$(git log -1 --pretty=%an)" >> "$GITHUB_OUTPUT"
+      
       - uses: actions/setup-python@v5
+        if: ${{ steps.last.outputs.name != 'github-actions[bot]' }}
       - run: python make_release.py
+        if: ${{ steps.last.outputs.name != 'github-actions[bot]' }}
       - run: |
-          echo ${{ github.event.pull_request.head.user.name }}
+          echo ${{ github.actor }}
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Make header only import library"
+        if: ${{ steps.last.outputs.name != 'github-actions[bot]' }}
       - uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.PAT }}
           branch: ${{ github.head_ref }}
+        if: ${{ steps.last.outputs.name != 'github-actions[bot]' }}
