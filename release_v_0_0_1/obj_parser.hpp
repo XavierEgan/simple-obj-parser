@@ -11,7 +11,7 @@ namespace objParser {
 		float indexOfRefraction = 0.0f;								// Ni / index of refraction
 
  
-        Material(const std::string& name);
+        Material(const std::string& name); 
     };
 }
 #include <vector>
