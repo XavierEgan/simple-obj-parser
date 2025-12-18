@@ -1,7 +1,7 @@
 import os
 import shutil
 
-release_text = "release_v_"
+release_text = "release"
 
 # release format = major_minor_patch
 # example release_v_1_0_0
@@ -26,9 +26,9 @@ def get_code_files(src_dir: str, exclude: list[str] = []) -> list[str]:
 
 def make_release(version):
     try:
-        os.makedirs(f"{release_text}{version}", exist_ok=False)
+        os.makedirs(f"release", exist_ok=False)
     except FileExistsError:
-        print(f"Release directory {release_text}{version} already exists. Aborting.")
+        print(f"Release directory release already exists. Aborting.")
         return
 
     # what the user imports
@@ -79,7 +79,7 @@ def test():
 
 def remove_releases():
     for item in os.listdir("."):
-        if item.startswith(release_text) and os.path.isdir(item):
+        if item is "release" and os.path.isdir(item):
             shutil.rmtree(item)
             print(f"Removed directory: {item}")
 
