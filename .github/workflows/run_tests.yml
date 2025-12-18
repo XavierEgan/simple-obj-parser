@@ -29,7 +29,6 @@ jobs:
   
   build_windows:
     runs-on: windows-latest
-    if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
 
@@ -47,7 +46,6 @@ jobs:
 
   build_mac:
     runs-on: macos-latest
-    if: github.actor == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
 
@@ -56,7 +54,9 @@ jobs:
 
       - run: cmake -S . -B ObjParserTests -G Ninja
         if: steps.last.outputs.name == 'github-actions[bot]'
+      
       - run: cmake --build ObjParserTests
         if: steps.last.outputs.name == 'github-actions[bot]'
+      
       - run: ctest --test-dir ObjParserTests --output-on-failure
         if: steps.last.outputs.name == 'github-actions[bot]'

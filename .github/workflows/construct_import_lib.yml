@@ -12,7 +12,6 @@ permissions:
 jobs:
   construct-import-lib:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.user.login != 'github-actions[bot]' }}
     steps:
       - uses: actions/checkout@v4
         with:
