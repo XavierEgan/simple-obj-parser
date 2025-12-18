@@ -1,7 +1,7 @@
 #pragma once
 #include "CommonInclude.hpp"
 
-namespace objParser {
+namespace objParser { 
     struct Material { 
         std::string name;
 		glm::vec3 ambientColor = glm::vec3(0.0f, 0.0f, 0.0f);		// Ka
