@@ -1,7 +1,7 @@
 import os
 import shutil
 
-release_text = "release"
+release_text = "release_"
 
 # release format = major_minor_patch
 # example release_v_1_0_0
@@ -46,7 +46,7 @@ def make_release(version):
         return is_include or is_pragma or is_guard
 
     # make the include file
-    with open(f"{release_text}{version}/{include_file}", "w") as incl_f:
+    with open(f"release/{include_file}", "w") as incl_f:
         # write all the include files
         for file in incl_files:
             with open(file, "r") as f:
@@ -79,7 +79,7 @@ def test():
 
 def remove_releases():
     for item in os.listdir("."):
-        if item is "release" and os.path.isdir(item):
+        if item == "release" and os.path.isdir(item):
             shutil.rmtree(item)
             print(f"Removed directory: {item}")
 
