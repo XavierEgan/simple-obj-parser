@@ -10,7 +10,7 @@ namespace objParser {
 		glm::vec3 transmissionFilter = glm::vec3(0.0f, 0.0f, 0.0f);	// Tf
 		float indexOfRefraction = 0.0f;								// Ni / index of refraction
 
-
+ 
         Material(const std::string& name);
     };
 }
