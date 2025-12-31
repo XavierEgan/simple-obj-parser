@@ -1,10 +1,6 @@
 import os
 import shutil
-
-release_text = "release_"
-
-# release format = major_minor_patch
-# example release_v_1_0_0
+import sys
 
 def is_code(file_path: str) -> bool:
     return file_path.endswith(".cpp") or file_path.endswith(".c") or file_path.endswith(".hpp") or file_path.endswith(".h")
@@ -24,7 +20,7 @@ def get_code_files(src_dir: str, exclude: list[str] = []) -> list[str]:
         
     return code_files
 
-def make_release(version):
+def make_release(version: str):
     try:
         os.makedirs(f"release", exist_ok=False)
     except FileExistsError:
@@ -47,6 +43,8 @@ def make_release(version):
 
     # make the include file
     with open(f"release/{include_file}", "w") as incl_f:
+        incl_f.write(f"// Obj Parser v{version}\n")
+
         # write all the include files
         for file in incl_files:
             with open(file, "r") as f:
@@ -67,15 +65,6 @@ def make_release(version):
                 incl_f.write("\n")
 
         incl_f.write(f"\n#endif\n")
-    
-def test():
-    for root, _, files in os.walk("include"):
-        if (any(excl in root for excl in include_dir_exclude_dir)):
-            continue
-
-        for file in files:
-            if file.endswith(".hpp"):
-                print(f"root: {root}, file: {file}")
 
 def remove_releases():
     for item in os.listdir("."):
@@ -83,12 +72,7 @@ def remove_releases():
             shutil.rmtree(item)
             print(f"Removed directory: {item}")
 
-def get_release() -> str:
-    with open("release.txt", "r") as f:
-        version: str = f.read().strip()
-    return version
-
 if __name__ == "__main__":
     remove_releases()
-    release: str = get_release()
-    make_release(release)
+    version = sys.argv[1]
+    make_release(version)
