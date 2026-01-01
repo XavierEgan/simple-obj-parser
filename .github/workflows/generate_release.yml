@@ -31,7 +31,7 @@ jobs:
         run: python make_readme.py ${{ github.event.inputs.tag }}
 
       - name: Zip Release Files
-        run: zip -r release_${{ github.event.inputs.tag }}.zip release
+        run: zip -r release_${{ github.event.inputs.tag }}.zip obj_parser
       
       - name: Create Release
         uses: softprops/action-gh-release@v2
