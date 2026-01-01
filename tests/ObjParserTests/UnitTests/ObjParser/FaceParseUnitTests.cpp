@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "ObjParser.hpp"
-#include "TestHelpers.hpp"
+#include "../release/obj_parser.hpp"
 
 struct FaceParseCase {
 	std::string objFileContents;

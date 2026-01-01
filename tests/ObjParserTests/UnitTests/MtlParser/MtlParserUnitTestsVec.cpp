@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "MtlParser.hpp"
-#include "TestHelpers.hpp"
+#include "../release/obj_parser.hpp"
 
 // tests for Mtl Parser that 
 struct MtlParseCaseVec {
