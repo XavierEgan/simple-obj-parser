@@ -15,23 +15,30 @@ def get_code_files(src_dir: str, exclude: list[str] = []) -> list[str]:
 
         # add all the code files into the list
         for file in files:
+            if file in exclude:
+                continue
+
             if is_code(file):
                 code_files.append(os.path.join(root, file))
         
     return code_files
 
 def make_release(version: str):
-    try:
-        os.makedirs(f"release", exist_ok=False)
-    except FileExistsError:
-        print(f"Release directory release already exists. Aborting.")
-        return
+    os.makedirs(f"release", exist_ok=False)
+
+    # files that have to go in a specific order
+    include_files = [
+        "include/Mesh.hpp",
+        "include/Material.hpp",
+        "include/ObjParserError.hpp",
+        "include/MtlParser.hpp",
+        "include/ObjParser.hpp"
+    ]
 
     # what the user imports
-    include_file: str = f"obj_parser.hpp"
+    header_only_library_file: str = f"obj_parser.hpp"
 
     src_files = get_code_files("src")
-    incl_files = get_code_files("include", ["ext"])
 
     def dont_write_line(line: str) -> bool:
         # skip include guards and pragma once
@@ -42,11 +49,11 @@ def make_release(version: str):
         return is_include or is_pragma or is_guard
 
     # make the include file
-    with open(f"release/{include_file}", "w") as incl_f:
+    with open(f"release/{header_only_library_file}", "w") as incl_f:
         incl_f.write(f"// Obj Parser v{version}\n")
 
         # write all the include files
-        for file in incl_files:
+        for file in include_files:
             with open(file, "r") as f:
                 for line in f:
                     if dont_write_line(line):
@@ -72,7 +79,16 @@ def remove_releases():
             shutil.rmtree(item)
             print(f"Removed directory: {item}")
 
+def copy_ext():
+    EXT_DIR = "include/ext"
+    DEST_DIR = "release/ext"
+
+    if os.path.exists(EXT_DIR):
+        shutil.copytree(EXT_DIR, DEST_DIR)
+        print(f"Copied {EXT_DIR} to {DEST_DIR}")
+
 if __name__ == "__main__":
     remove_releases()
     version = sys.argv[1]
     make_release(version)
+    copy_ext()
