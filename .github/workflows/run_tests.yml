@@ -9,11 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - name: generate header only
-        run: python make_release.py 0
       - name: Build and Test
         run: |
           sudo apt update && sudo apt install -y ninja-build
@@ -25,11 +20,6 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - name: generate header only
-        run: python make_release.py 0
       - name: Build and Test
         run: |
           cmake -S . -B ObjParserTests -G "Visual Studio 17 2022" -A x64
@@ -40,11 +30,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - name: generate header only
-        run: python make_release.py 0
       - name: Build and Test
         run: |
           cmake -S . -B ObjParserTests -G Ninja

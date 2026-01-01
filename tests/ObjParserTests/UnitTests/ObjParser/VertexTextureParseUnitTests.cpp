@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "../release/obj_parser.hpp"
-
 // Parameterized testing help from here:
 // https://www.sandordargo.com/blog/2019/04/24/parameterized-testing-with-gtest
 

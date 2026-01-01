@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "../release/obj_parser.hpp"
-
 TEST(MtlandObjIntegrationTests, rejectsWrongMtlFilePath) {
 	std::vector<objParser::Mesh> meshs;
 	std::vector<objParser::Material> materials;

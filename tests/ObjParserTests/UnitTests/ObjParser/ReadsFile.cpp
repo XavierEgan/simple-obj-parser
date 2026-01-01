@@ -2,8 +2,6 @@
 #include <sstream>
 #include <filesystem>
 
-#include "../release/obj_parser.hpp"
-
 TEST(ObjParserReadsFile, rejectsWrongFilePath) {
 	std::vector<objParser::Mesh> meshs;
 	std::vector<objParser::Material> materials;
