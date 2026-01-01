@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "ObjParser.hpp"
-#include "TestHelpers.hpp"
-
 struct FaceParseCase {
 	std::string objFileContents;
 	bool makeFilledMeshs;

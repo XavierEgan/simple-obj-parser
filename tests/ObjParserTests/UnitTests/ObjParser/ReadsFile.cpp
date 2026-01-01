@@ -2,9 +2,6 @@
 #include <sstream>
 #include <filesystem>
 
-#include "ObjParser.hpp"
-#include "TestHelpers.hpp"
-
 TEST(ObjParserReadsFile, rejectsWrongFilePath) {
 	std::vector<objParser::Mesh> meshs;
 	std::vector<objParser::Material> materials;
@@ -17,7 +14,7 @@ TEST(ObjParserReadsFile, readsBasicFile) {
 	std::vector<objParser::Mesh> meshs;
 	std::vector<objParser::Material> materials;
 
-	objParser::Error error = objParser::parseObjFile("../../../tests/TestAssets/objTest1.obj", meshs, materials);
+	objParser::Error error = objParser::parseObjFile("../tests/TestAssets/objTest1.obj", meshs, materials);
 	
 	ASSERT_EQ(error, objParser::ErrorType::OK);
 	ASSERT_EQ(meshs.size(), 1);

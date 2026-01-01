@@ -1,5 +1,5 @@
-#include "CommonInclude.hpp"
-#include "MtlParser.hpp"
+#include "../../include/CommonInclude.hpp"
+#include "../../include/MtlParser.hpp"
 
 namespace MtlParserHelpers {
 	static objParser::Error ensureMaterialExists(const std::vector<objParser::Material>& materials) {

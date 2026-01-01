@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "MtlParser.hpp"
-#include "TestHelpers.hpp"
-
 // tests for Mtl Parser that 
 struct MtlParseCaseVec {
 	std::string mtlFileContents;

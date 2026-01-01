@@ -1,5 +1,5 @@
-#include "ObjParser.hpp"
-#include "MtlParser.hpp"
+#include "../../include/ObjParser.hpp"
+#include "../../include/MtlParser.hpp"
 
 
 namespace ObjParserHelpers {

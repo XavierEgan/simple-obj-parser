@@ -1,5 +1,3 @@
-#include "CommonInclude.hpp"
-
 namespace TestHelpers {
 	constexpr float DEFAULT_EPSILON = 1.0e-5;
 
