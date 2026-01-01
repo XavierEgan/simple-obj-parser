@@ -54,3 +54,6 @@ target_include_directories(
     PUBLIC
         "${CMAKE_SOURCE_DIR}/tests"
 )
+
+include(GoogleTest)
+gtest_discover_tests(ObjParserTests)
