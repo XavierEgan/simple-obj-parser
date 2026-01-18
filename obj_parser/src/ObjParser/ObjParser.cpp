@@ -19,7 +19,7 @@ namespace ObjParserHelpers {
 		return objParser::ErrorType::OK;
 	}
 
-	static objParser::Error newVertex(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newVertex(std::istringstream& lineStream, std::vector<glm::vec3>& vertices) {
 		// we will ignore w
 		float x = 0, y = 0, z = 0, w = 1.0;
 		if (!(lineStream >> x >> y >> z)) {
@@ -28,12 +28,12 @@ namespace ObjParserHelpers {
 		// read in w, but its not an error if its not there
 		lineStream >> w;
 
-		meshs.back().vertices.emplace_back(x / w, y / w, z / w);
+		vertices.emplace_back(x / w, y / w, z / w);
 
 		return objParser::ErrorType::OK;
 	}
 
-	static objParser::Error newVertexNormal(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newVertexNormal(std::istringstream& lineStream, std::vector<glm::vec3>& vertexNormals) {
 		float x = 0, y = 0, z = 0;
 		if (!(lineStream >> x >> y >> z)) {
 			return objParser::Error(objParser::ErrorType::FileFormatError, "Reading in a vertex normal failed");
@@ -43,12 +43,12 @@ namespace ObjParserHelpers {
 		glm::vec3 vec(x, y, z);
 		vec = glm::normalize(vec);
 
-		meshs.back().vertexNormals.emplace_back(vec.x, vec.y, vec.z);
+		vertexNormals.emplace_back(vec.x, vec.y, vec.z);
 
 		return objParser::ErrorType::OK;
 	}
 
-	static objParser::Error newVertexTexture(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newVertexTexture(std::istringstream& lineStream, std::vector<glm::vec3>& vertexTextureCoordinates) {
 		// last two are optional, but default to zero so this should be fine
 		float x = 0, y = 0, z = 0;
 		if (!(lineStream >> x)) {
@@ -57,7 +57,7 @@ namespace ObjParserHelpers {
 
 		lineStream >> y >> z;
 
-		meshs.back().vertexTextureCoordinates.emplace_back(x, y, z);
+		vertexTextureCoordinates.emplace_back(x, y, z);
 
 		return objParser::ErrorType::OK;
 	}
@@ -70,12 +70,18 @@ namespace ObjParserHelpers {
 		vvtvn
 	};
 
-	static objParser::Error newFace(std::istringstream& lineStream, std::vector<objParser::Mesh>& meshs) {
+	static objParser::Error newFace(
+		std::istringstream& lineStream, 
+		std::vector<objParser::Mesh>& meshs, 
+		const std::vector<glm::vec3>& globalVertices, 
+		const std::vector<glm::vec3>& globalVertexTextureCoordinates, 
+		const std::vector<glm::vec3>& globalVertexNormals
+	) {
 		// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
 		std::array<std::string, 3> faces;
 
 		if (!(lineStream >> faces[0] >> faces[1] >> faces[2])) {
-			return objParser::Error(objParser::ErrorType::FileFormatError, "Must be exactly 3 verts");
+			return objParser::Error(objParser::ErrorType::FileFormatError, "Face cant have less that 3 verts.");
 		}
 		
 		std::string temp;
@@ -83,112 +89,80 @@ namespace ObjParserHelpers {
 			return objParser::Error(objParser::ErrorType::FileFormatError, "Face cant have more that 3 verts. Triangulate your mesh before exporting");
 		}
 
-		int typeInput = FaceElementType::notSet;
+		FaceElementType inputTypeAllVerts = FaceElementType::notSet;
 
-		std::vector<int> tempVertexIndexes;
-		std::vector<int> tempVertexTextureCoordinatesIndexes;
-		std::vector<int> tempVertexNormalsIndexes;
-
-		for (std::string face : faces) {
-			constexpr int noIndex = 0;
-			int v = noIndex, vt = noIndex, vn = noIndex;
-
-			int firstSlashIndex = face.find_first_of('/');
-			int secondSlashIndex = face.find_last_of('/');
+		for (std::string& face : faces) {
+			size_t firstSlashIndex = face.find_first_of('/');
+			size_t secondSlashIndex = face.find_last_of('/');
 
 			if (firstSlashIndex != std::string::npos) {
 				face.at(firstSlashIndex) = ' ';
 				face.at(secondSlashIndex) = ' ';
 			}
 
-			int thisType = FaceElementType::notSet;
+			FaceElementType thisType = FaceElementType::notSet;
 
 			std::istringstream faceStream(face);
 
 			if (firstSlashIndex == std::string::npos) {
-				// v
-				if (!(faceStream >> v) || v == 0) {
-					return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, format: v");
-				}
 				thisType = FaceElementType::v;
 			} else  if (firstSlashIndex == secondSlashIndex) {
-				// v/vt
-				if (!(faceStream >> v >> vt) || v == 0 || vt == 0) {
-					return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, format: v/vt");
-				}
 				thisType = FaceElementType::vvt;
 			} else if (firstSlashIndex == secondSlashIndex - 1) {
-				// v//vn
-				if (!(faceStream >> v >> vn) || v == 0 || vn == 0) {
-					return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, format: v//vn");
-				}
 				thisType = FaceElementType::vvn;
 			} else {
-				// v/vt/vn
-				if (!(faceStream >> v >> vt >> vn) || v == 0 || vt == 0 || vn == 0) {
-					return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, format: v/vt/vn");
-				}
 				thisType = FaceElementType::vvtvn;
 			}
 
-			if (typeInput == FaceElementType::notSet) {
-				typeInput = thisType;
-			} else if (typeInput != thisType) {
+			// check the type is correct
+			if (inputTypeAllVerts == FaceElementType::notSet) {
+				inputTypeAllVerts = thisType;
+			} else if (inputTypeAllVerts != thisType) {
 				return objParser::Error(objParser::ErrorType::FileFormatError, "Error reading face, must be all the same type of input (for example, all v//vn)");
 			}
+
+			constexpr int NO_INDEX = std::numeric_limits<int>::min();
+			int v = NO_INDEX, vt = NO_INDEX, vn = NO_INDEX;
+			switch (inputTypeAllVerts) {
+				case FaceElementType::v:
+					faceStream >> v;
+					break;
+				case FaceElementType::vvt:
+					faceStream >> v >> vt;
+					break;
+				case FaceElementType::vvn:
+					faceStream >> v >> vn;
+					break;
+				case FaceElementType::vvtvn:
+					faceStream >> v >> vt >> vn;
+					break;
+			}
+
+			if (v != NO_INDEX && (v < 1 || v > globalVertices.size())) {
+				return objParser::Error(objParser::ErrorType::FileFormatError, "Vertex index in face is out of range, got " + std::to_string(v) + " but there are only " + std::to_string(globalVertices.size()) + " vertices");
+			}
+			if (vt != NO_INDEX && (vt < 1 || vt > globalVertexTextureCoordinates.size())) {
+				return objParser::Error(objParser::ErrorType::FileFormatError, "Vertex texture coordinate index in face is out of range, got " + std::to_string(vt) + " but there are only " + std::to_string(globalVertexTextureCoordinates.size()) + " vertex texture coordinates");
+			}
+			if (vn != NO_INDEX && (vn < 1 || vn > globalVertexNormals.size())) {
+				return objParser::Error(objParser::ErrorType::FileFormatError, "Vertex normal index in face is out of range, got " + std::to_string(vn) + " but there are only " + std::to_string(globalVertexNormals.size()) + " vertex normals");
+			}
 			
-			if (v != noIndex) {
-				if (v < 0) {
-					v = meshs.back().vertices.size() + v;
-				} else {
-					v -= 1;
-				}
+			objParser::Mesh& mesh = meshs.back();
 
-				if (v > (int)meshs.back().vertices.size() - 1) {
-					std::ostringstream oss;
-					oss << "Vertex '" << vt << "' out of range. Expected less than '" << meshs.back().vertexNormals.size();
-					return objParser::Error(objParser::ErrorType::FileFormatError, oss.str());
-				}
-
-				tempVertexIndexes.push_back(v);
+			if (v != NO_INDEX) {
+				mesh.vertices.push_back(globalVertices[v - 1]);
+				mesh.vertexIndexes.push_back(static_cast<int>(mesh.vertices.size() - 1));
 			}
-
-			if (vt != noIndex) {
-				if (vt < 0) {
-					vt = meshs.back().vertexTextureCoordinates.size() + vt;
-				} else {
-					vt -= 1;
-				}
-
-				if (vt > (int)meshs.back().vertices.size() - 1) {
-					std::ostringstream oss;
-					oss << "Vertex Texture '" << vt << "' out of range. Expected less than '" << meshs.back().vertexNormals.size();
-					return objParser::Error(objParser::ErrorType::FileFormatError, oss.str());
-				}
-
-				tempVertexTextureCoordinatesIndexes.push_back(vt);
+			if (vt != NO_INDEX) {
+				mesh.vertexTextureCoordinates.push_back(globalVertexTextureCoordinates[vt - 1]);
+				mesh.vertexTextureCoordinatesIndexes.push_back(static_cast<int>(mesh.vertexTextureCoordinates.size() - 1));
 			}
-
-			if (vn != noIndex) {
-				if (vn < 0) {
-					vn = meshs.back().vertexTextureCoordinates.size() + vn;
-				} else {
-					vn -= 1;
-				}
-
-				if (vn > (int)meshs.back().vertices.size() - 1) {
-					std::ostringstream oss;
-					oss << "Vertex Normal '" << vt << "' out of range. Expected less than '" << meshs.back().vertexNormals.size();
-					return objParser::Error(objParser::ErrorType::FileFormatError, oss.str());
-				}
-
-				tempVertexNormalsIndexes.push_back(vn);
+			if (vn != NO_INDEX) {
+				mesh.vertexNormals.push_back(globalVertexNormals[vn - 1]);
+				mesh.vertexNormalsIndexes.push_back(static_cast<int>(mesh.vertexNormals.size() - 1));
 			}
 		}
-
-		meshs.back().vertexIndexes.insert(meshs.back().vertexIndexes.end(), tempVertexIndexes.begin(), tempVertexIndexes.end());
-		meshs.back().vertexTextureCoordinatesIndexes.insert(meshs.back().vertexTextureCoordinatesIndexes.end(), tempVertexTextureCoordinatesIndexes.begin(), tempVertexTextureCoordinatesIndexes.end());
-		meshs.back().vertexNormalsIndexes.insert(meshs.back().vertexNormalsIndexes.end(), tempVertexNormalsIndexes.begin(), tempVertexNormalsIndexes.end());
 
 		return objParser::ErrorType::OK;
 	}
@@ -200,8 +174,6 @@ namespace ObjParserHelpers {
 		auto materialNameMatches = [materialName](objParser::Material mat) -> bool {
 			return materialName == mat.name;
 		};
-		
-		
 
 		if (auto matIterator = std::ranges::find_if(materials, materialNameMatches); matIterator != materials.end()) {
 			meshs.back().mtlIndex = matIterator - materials.begin();
@@ -244,6 +216,11 @@ objParser::Error objParser::parseObjStream(std::istream& stream, const std::file
 
 	std::istringstream lineStream(line);
 
+	std::vector<glm::vec3> globalVertices;
+	std::vector<glm::vec3> globalVertexTextureCoordinates;
+	std::vector<glm::vec3> globalVertexNormals;
+
+
 	while (!stream.fail()) {
 		std::string elementType;
 		lineStream >> elementType;
@@ -257,14 +234,7 @@ objParser::Error objParser::parseObjStream(std::istream& stream, const std::file
 			}
 
 		} else if (elementType == "v") {
-			// vertex
-			objParser::Error error = ObjParserHelpers::ensureObjExists(meshs);
-
-			if (error != objParser::ErrorType::OK) {
-				return error;
-			}
-
-			error = ObjParserHelpers::newVertex(lineStream, meshs);
+			objParser::Error error = ObjParserHelpers::newVertex(lineStream, globalVertices);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -272,13 +242,7 @@ objParser::Error objParser::parseObjStream(std::istream& stream, const std::file
 
 		} else if (elementType == "vn") {
 			// vertex normal
-			objParser::Error error = ObjParserHelpers::ensureObjExists(meshs);
-
-			if (error != objParser::ErrorType::OK) {
-				return error;
-			}
-
-			error = ObjParserHelpers::newVertexNormal(lineStream, meshs);
+			objParser::Error error = ObjParserHelpers::newVertexNormal(lineStream, globalVertexNormals);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -286,13 +250,7 @@ objParser::Error objParser::parseObjStream(std::istream& stream, const std::file
 
 		} else if (elementType == "vt") {
 			// vertex texture
-			objParser::Error error = ObjParserHelpers::ensureObjExists(meshs);
-
-			if (error != objParser::ErrorType::OK) {
-				return error;
-			}
-
-			error = ObjParserHelpers::newVertexTexture(lineStream, meshs);
+			objParser::Error error = ObjParserHelpers::newVertexTexture(lineStream, globalVertexTextureCoordinates);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
@@ -306,7 +264,7 @@ objParser::Error objParser::parseObjStream(std::istream& stream, const std::file
 				return error;
 			}
 
-			error = ObjParserHelpers::newFace(lineStream, meshs);
+			error = ObjParserHelpers::newFace(lineStream, meshs, globalVertices, globalVertexTextureCoordinates, globalVertexNormals);
 
 			if (error != objParser::ErrorType::OK) {
 				return error;
